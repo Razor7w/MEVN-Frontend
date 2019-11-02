@@ -19,6 +19,15 @@
             <b-button class="btn-sm btn-block btn-success" type="submit">Agregar</b-button>
         </form>
 
+        <form @submit.prevent="editarNota(notaEditar)" v-else>
+            <h3 class="text-center">Editar Nota</h3>
+            <input type="text" placeholder="Ingrese un Nombre" class="form-control my-2" v-model="notaEditar.nombre">
+            <input type="text" placeholder="Ingrese una descripcion" 
+            class="form-control my-2" v-model="notaEditar.descripcion">
+            <b-button class="btn-sm btn-block mb-1 btn-warning" type="submit">Editar</b-button>
+            <b-button class="btn-sm btn-block" @click="agregar = true">Cancelar</b-button>
+        </form>
+
         <table class="table">
             <thead>
                 <tr>
@@ -62,6 +71,10 @@ export default {
                 descripcion:''
             },
             agregar: true,
+            notaEditar:{
+                nombre:'',
+                descripcion:''
+            }
         }
     },
     created(){
@@ -119,6 +132,36 @@ export default {
                 .catch(e => {
                     console.log(e.response);
                 })
+        },
+        activarEdicion(id){
+            this.agregar = false;
+            console.log(id);
+            this.axios.get(`/nota/${id}`)
+                .then(res => {
+                    //this.notaEditar.nombre = res.data.nombre;
+                    //this.notaEditar.descripcion = res.data.descripcion;
+                    this.notaEditar = res.data;
+                })
+                .catch(e => {
+                    console.log(e.response);
+                })
+        },
+        editarNota(item){
+            this.axios.put(`/nota/${item._id}`, item)
+                .then(res => {
+                    const index = this.notas.findIndex(n => n._id === res.data._id);
+                    this.notas[index].nombre = res.data.nombre;
+                    this.notas[index].descripcion = res.data.descripcion;
+
+                    this.mensaje.color = 'success';
+                    this.mensaje.texto = 'Nota Editada';
+                    this.showAlert();
+                    this.agregar = true;
+                })
+                .catch(e => {
+                    console.log(e.response);
+                })
+
         },
         countDownChanged(dismissCountDown) {
             this.dismissCountDown = dismissCountDown
