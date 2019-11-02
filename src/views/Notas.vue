@@ -12,6 +12,13 @@
             {{mensaje.texto}}
         </b-alert>
 
+        <form @submit.prevent="agregarNota(nota)" v-if="agregar">
+            <h3 class="text-center">Agregar nueva Nota</h3>
+            <input type="text" placeholder="Ingrese un Nombre" class="form-control my-2" v-model="nota.nombre">
+            <input type="text" placeholder="Ingrese una descripcion" class="form-control my-2" v-model="nota.descripcion">
+            <b-button class="btn-sm btn-block btn-success" type="submit">Agregar</b-button>
+        </form>
+
         <table class="table">
             <thead>
                 <tr>
@@ -49,7 +56,12 @@ export default {
             mensaje:{
                 color: '',
                 texto: ''
-            }
+            },
+            nota:{
+                nombre:'',
+                descripcion:''
+            },
+            agregar: true,
         }
     },
     created(){
@@ -69,6 +81,28 @@ export default {
                 })
                 .catch(e =>{
                     console.error(e.response);
+                })
+        },
+        agregarNota(){
+            this.axios.post('/nueva-nota', this.nota)
+                .then(res =>{
+                    this.notas.push(res.data)
+                    this.nota.nombre = '';
+                    this.nota.descripcion = '';
+
+                    this.mensaje.color = 'success',
+                    this.mensaje.texto = 'Nota agregada',
+                    this.showAlert();
+                })
+                .catch(e =>{
+                    console.error(e.response);
+                    if(e.response.data.error.errors.nombre.message){
+                        this.mensaje.texto = e.response.data.error.errors.nombre.message;
+                    }else{
+                        this.mensaje.texto = 'Error del sistema';
+                    }
+                    this.mensaje.color = 'danger';
+                    this.showAlert();
                 })
         },
         countDownChanged(dismissCountDown) {
