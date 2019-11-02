@@ -38,7 +38,7 @@
                 <td>
                     <b-button class="btn-warning btn-sm mx-2" @click="activarEdicion(item._id)">Actualizar</b-button>
                     <b-button class="btn-danger btn-sm mx-2" @click="eliminarNota(item._id)">Eliminar</b-button>
-                    <b-button @click="alerta()"> Acción</b-button>
+                    <!-- <b-button @click="alerta()"> Acción</b-button> -->
                 </td>
                 </tr>
             </tbody>
@@ -103,6 +103,21 @@ export default {
                     }
                     this.mensaje.color = 'danger';
                     this.showAlert();
+                })
+        },
+        eliminarNota(id){
+            console.log(id);
+            this.axios.delete(`/nota/${id}`)
+                .then(res =>{
+                    const index = this.notas.findIndex(item => item._id === res.data._id);
+                    this.notas.splice(index,1);
+
+                    this.mensaje.color = 'success',
+                    this.mensaje.texto = 'Nota Eliminada',
+                    this.showAlert();
+                })
+                .catch(e => {
+                    console.log(e.response);
                 })
         },
         countDownChanged(dismissCountDown) {
